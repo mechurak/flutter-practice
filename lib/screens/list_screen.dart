@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../models/todo.dart';
-import '../repositories/todo_repository.dart';
+import '../models/todo_isar.dart';
+import '../repositories/todo_repository_isar.dart';
 
 class ListScreen extends StatefulWidget {
   const ListScreen({super.key});
@@ -13,15 +13,16 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-  List<Todo> todos = [];
-  TodoRepository todoRepository = TodoRepository();
+  List<TodoIsar> todos = [];
+  TodoRepositoryIsar todoRepository = TodoRepositoryIsar();
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 2), () {
-      todos = todoRepository.getTodos();
+    Timer(const Duration(seconds: 2), () async {
+      await todoRepository.initIsar(); // Isar 초기화
+      todos = await todoRepository.getTodos();
       setState(() {
         isLoading = false;
       });
@@ -107,12 +108,13 @@ class _ListScreenState extends State<ListScreen> {
             ),
             TextButton(
               child: const Text('추가'),
-              onPressed: () {
+              onPressed: () async {
                 setState(() {
                   debugPrint("[UI] ADD");
-                  todoRepository.addTodo(
-                    Todo(title: title, description: description),
-                  );
+                  TodoIsar newTodo = TodoIsar()
+                    ..title = title
+                    ..description = description;
+                  todoRepository.addTodo(newTodo);
                 });
                 Navigator.of(context).pop();
               },
@@ -149,7 +151,7 @@ class _ListScreenState extends State<ListScreen> {
       context: context,
       builder: (BuildContext context) {
         String title = todos[index].title;
-        String description = todos[index].description;
+        String? description = todos[index].description;
         return AlertDialog(
           title: const Text('할 일 수정하기'),
           content: SizedBox(
@@ -185,11 +187,9 @@ class _ListScreenState extends State<ListScreen> {
             TextButton(
               child: const Text('수정'),
               onPressed: () async {
-                Todo newTodo = Todo(
-                  id: todos[index].id,
-                  title: title,
-                  description: description,
-                );
+                TodoIsar newTodo = TodoIsar()
+                  ..title = title
+                  ..description = description;
                 setState(() {
                   todoRepository.updateTodo(newTodo);
                 });
@@ -220,7 +220,7 @@ class _ListScreenState extends State<ListScreen> {
               child: const Text('삭제'),
               onPressed: () async {
                 setState(() {
-                  todoRepository.deleteTodo(todos[index].id ?? 0);
+                  todoRepository.deleteTodo(todos[index].id);
                 });
                 Navigator.of(context).pop();
               },
