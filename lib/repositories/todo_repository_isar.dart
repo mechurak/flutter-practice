@@ -18,29 +18,35 @@ class TodoRepositoryIsar {
   }
 
   Future<List<TodoIsar>> getTodos() async {
-    // TODO: Implement
     debugPrint("TodoRepositoryIsar.getTodos()");
-    return [];
+    return await isar.todoIsars.where().findAll();
   }
 
   Future<TodoIsar?> getTodo(int id) async {
-    // TODO: Implement
     debugPrint("TodoRepositoryIsar.getTodo($id)");
-    return null;
+    return await isar.todoIsars.get(id);
   }
 
   Future addTodo(TodoIsar todo) async {
-    // TODO: Implement
     debugPrint("TodoRepositoryIsar.addTodo($todo)");
+    await isar.writeTxn(() async {
+      Id id = await isar.todoIsars.put(todo);
+      debugPrint("TodoRepositoryIsar.addTodo(). id: $id");
+    });
   }
 
   Future deleteTodo(int id) async {
-    // TODO: Implement
     debugPrint("TodoRepositoryIsar.deleteTodo($id)");
+    await isar.writeTxn(() async {
+      await isar.todoIsars.delete(id);
+    });
   }
 
   Future updateTodo(TodoIsar todo) async {
-    // TODO: Implement
     debugPrint("TodoRepositoryIsar.updateTodo($todo)");
+    await isar.writeTxn(() async {
+      Id id = await isar.todoIsars.put(todo);
+      debugPrint("TodoRepositoryIsar.updateTodo(). id: $id");
+    });
   }
 }

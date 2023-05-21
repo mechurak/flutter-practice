@@ -109,14 +109,16 @@ class _ListScreenState extends State<ListScreen> {
             TextButton(
               child: const Text('추가'),
               onPressed: () async {
-                setState(() {
-                  debugPrint("[UI] ADD");
-                  TodoIsar newTodo = TodoIsar()
-                    ..title = title
-                    ..description = description;
-                  todoRepository.addTodo(newTodo);
-                });
                 Navigator.of(context).pop();
+
+                TodoIsar newTodo = TodoIsar()
+                  ..title = title
+                  ..description = description;
+                await todoRepository.addTodo(newTodo);
+                List<TodoIsar> newTodos = await todoRepository.getTodos();
+                setState(() {
+                  todos = newTodos;
+                });
               },
             ),
           ],
@@ -187,13 +189,16 @@ class _ListScreenState extends State<ListScreen> {
             TextButton(
               child: const Text('수정'),
               onPressed: () async {
-                TodoIsar newTodo = TodoIsar()
+                Navigator.of(context).pop();
+
+                TodoIsar targetTodo = todos[index]
                   ..title = title
                   ..description = description;
+                await todoRepository.updateTodo(targetTodo);
+                List<TodoIsar> newTodos = await todoRepository.getTodos();
                 setState(() {
-                  todoRepository.updateTodo(newTodo);
+                  todos = newTodos;
                 });
-                Navigator.of(context).pop();
               },
             ),
           ],
@@ -219,10 +224,13 @@ class _ListScreenState extends State<ListScreen> {
             TextButton(
               child: const Text('삭제'),
               onPressed: () async {
-                setState(() {
-                  todoRepository.deleteTodo(todos[index].id);
-                });
                 Navigator.of(context).pop();
+
+                await todoRepository.deleteTodo(todos[index].id);
+                List<TodoIsar> newTodos = await todoRepository.getTodos();
+                setState(() {
+                  todos = newTodos;
+                });
               },
             ),
           ],
